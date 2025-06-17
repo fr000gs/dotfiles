@@ -16,6 +16,8 @@
           pkgs.glibc
           pkgs.zlib
           pkgs.coreutils
+          pkgs.cmake
+          pkgs.gnumake
         ];
         runScript = "bash";
       };
