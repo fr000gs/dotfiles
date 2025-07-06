@@ -1,62 +1,47 @@
-#{
-#  #outputs = inputs @ {
-#  #  nixpkgs,
-#  #  ...
-#  #}:
-#  #let
-#  #  system = "x86_64-linux"; # change to whatever your system should be
-#  #in
-#  #{
-#  #  nixosConfigurations."${host}" = nixpkgs.lib.nixosSystem {
-#  #    specialArgs = {
-#  #      inherit system;
-#  #      inherit inputs;
-#  #    };
-#  #    modules = [
-#  #      {nixpkgs.overlays = [inputs.hyprpanel.overlay];}
-#  #    ];
-#  #  };
-#  #};
-#  inputs = {
-#    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-#    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
-#    hyprland.url = "github:hyprwm/Hyprland";
-#    hyprland-plugins = {
-#      url = "github:hyprwm/hyprland-plugins";
-#      inputs.hyprland.follows = "hyprland";
-#    };
-#    outputs = inputs@{ self, nixpkgs, ... }: {
-#    # NOTE: 'nixos' is the default hostname
-#    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-#      modules = [
-#        ./configuration.nix
-#        {nixpkgs.overlays = [inputs.hyprpanel.overlay];}
-#      ];
-#    };
-#  };
-#}
-#};
-
 {
-  inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    hyprpanel.url = "github:Jas-SinghFSU/HyprPanel";
-    hyprland.url = "github:hyprwm/Hyprland";
-    hyprland-plugins = {
-      url = "github:hyprwm/hyprland-plugins";
-      inputs.hyprland.follows = "hyprland";
-    };
-  };
+  description = "Android NDK FHS Shell";
 
-  outputs = inputs@{ self, nixpkgs, ... }: {
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-      specialArgs = {
-      inherit inputs;
-    };
-      modules = [
-        ./configuration.nix
-        { nixpkgs.overlays = [inputs.hyprpanel.overlay]; }
-      ];
-    };
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
+  outputs = { self, nixpkgs }: {
+    packages.x86_64-linux.default = let
+      pkgs = import nixpkgs {
+        system = "x86_64-linux";
+      };
+    in
+      pkgs.buildFHSEnv {
+        name = "ndk-clang-env";
+        targetPkgs = pkgs: with pkgs; [
+          gcc
+          glibc
+          #glib
+          zlib
+          #atkmm
+          #cairo
+          coreutils
+          openssl.dev
+          #pkg-config
+          wasm-bindgen-cli
+          dioxus-cli
+          jdk
+          openssl
+          gnumake
+          nodejs
+        ];
+        runScript = "bash";
+        profile = ''
+          export ANDROID_NDK=$ANDROID_NDK_HOME
+          export ANDROID_HOME=/home/fr000gs/Android/Sdk/
+          export OPENSSL_LIB_DIR=${pkgs.openssl.out}/lib
+          export OPENSSL_INCLUDE_DIR=${pkgs.openssl.dev}/include
+          export PKG_CONFIG_PATH=${pkgs.openssl.dev}/lib/pkgconfig
+          export LD_LIBRARY_PATH=${pkgs.openssl.out}/lib:$LD_LIBRARY_PATH
+          export SLINT_BACKEND=winit-skia
+          export PATH="$HOME/Android/Sdk/platform-tools:$PATH"
+        '';
+        #nativeBuildInputs = [ pkgs.pkg-config ];
+        #buildInputs = [ pkgs.openssl.dev ];
+        #LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [ pkgs.openssl ];
+      };
   };
 }
