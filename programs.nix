@@ -9,6 +9,13 @@ with lib; let
       #...plugins
     ];
   };
+
+  vscode-with-extensions = pkgs.vscode-with-extensions.override {
+    vscodeExtensions = with pkgs.vscode-extensions; [
+      rust-lang.rust-analyzer
+      vscodevim.vim
+    ];
+  };
 in
 {
   environment.sessionVariables = { HYPR_PLUGIN_DIR = hypr-plugin-dir; };
@@ -42,7 +49,8 @@ in
     kdePackages.dolphin
     python314
     gnome-network-displays
-    #anydesk
+    dart
+    flutter
   ];
 
 users.users.fr000gs.packages = with pkgs; [
@@ -55,11 +63,9 @@ users.users.fr000gs.packages = with pkgs; [
       nwg-menu
       nwg-look
       nwg-displays
-      #hyprland
       rofi
       #dunst
       nerd-fonts.jetbrains-mono
-      #nerdfetch
       xdg-desktop-portal-hyprland
       wireplumber
       hyprpolkitagent
@@ -78,7 +84,8 @@ users.users.fr000gs.packages = with pkgs; [
       wl-clipboard
       xwayland
       kdePackages.kdenlive
-      vscode
+      vscode-with-extensions
+      qdirstat
     ];
       programs = {
     virt-manager.enable = true;

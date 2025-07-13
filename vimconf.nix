@@ -25,6 +25,7 @@
              vim-polyglot
              nvim-scrollview
              vim-wayland-clipboard
+             vim-indent-guides
            ];
            opt = [];
          };
@@ -71,6 +72,8 @@
            set foldlevelstart=10
            nnoremap <space> za
            set foldmethod=syntax
+
+           let g:indent_guides_enable_on_vim_startup = 1
 
            " Clear status line when vimrc is reloaded.
            set statusline=
